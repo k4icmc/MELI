@@ -1,0 +1,80 @@
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vitrine de Ofertas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..900;1,9..40,400..900&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    window.SUPABASE_URL = "https://spqcfmfoabtyykrrkjjs.supabase.co";
+    window.SUPABASE_ANON_KEY = "sb_publishable_5HANDpifoJr6lUy3vHn5nw_E-g7Gvqv";
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+</head>
+<body data-page="home">
+  <div class="grain"></div>
+  <nav class="nav liquid-glass">
+    <div class="logo"><span class="logo-dot"></span><span id="siteName">Vitrine de Ofertas</span></div>
+    <ul class="nav-links">
+      <li><a href__="#promocoes">Promoções</a></li>
+      <li><a href__="#ofertas">Ofertas</a></li>
+    </ul>
+    <a href__="admin.html" class="btn-outline">Painel</a>
+  </nav>
+  <header class="hero" id="promocoes">
+    <div class="hero-bg-text" id="parallaxText">OFERTAS</div>
+    <div class="hero-container">
+      <div class="hero-content">
+        <p class="eyebrow">Seleção especial</p>
+        <h1 class="hero-title">Promoções<br /><em>em destaque</em></h1>
+        <p class="hero-subtitle">Os produtos em promoção passam por aqui, um por vez, saindo de trás e vindo para a frente.</p>
+      </div>
+      <div class="carousel-container">
+        <div class="carousel-track" id="promoCarousel"></div>
+        <p class="carousel-empty" id="carouselEmpty" hidden>Nenhum produto em promoção no momento.</p>
+      </div>
+    </div>
+  </header>
+  <section class="products-section" id="ofertas">
+    <div class="section-head gsap-reveal">
+      <div>
+        <p class="eyebrow">Catálogo</p>
+        <h2 id="sectionTitle">Todas as ofertas</h2>
+      </div>
+      <div class="toolbar">
+        <input type="search" id="searchInput" placeholder="Buscar produto…" />
+        <select id="categorySelect"><option value="">Todas as categorias</option></select>
+      </div>
+    </div>
+    <div class="products-grid" id="productsGrid"></div>
+    <p class="empty" id="emptyState" hidden>Nenhum produto encontrado.</p>
+  </section>
+  <footer class="footer">
+    <p id="footerText">Vitrine independente de divulgação de ofertas. Não somos o Mercado Livre e não temos vínculo oficial com a plataforma.</p>
+    <a href__="admin.html">Painel administrativo</a>
+  </footer>
+  <div class="modal" id="productModal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card clay-border">
+      <button class="modal-close" data-close>×</button>
+      <div class="modal-gallery">
+        <img id="modalMain" src="" alt="" />
+        <div class="modal-thumbs" id="modalThumbs"></div>
+      </div>
+      <div class="modal-info">
+        <p class="modal-category" id="modalCategory"></p>
+        <h3 id="modalName"></h3>
+        <p class="modal-price" id="modalPrice"></p>
+        <p class="modal-desc" id="modalDesc"></p>
+        <a class="btn-primary" id="modalBuy" target="_blank" rel="noopener" hidden>Comprar agora</a>
+      </div>
+    </div>
+  </div>
+  <script src="dados.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
