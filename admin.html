@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel · Vitrine de Ofertas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..900;1,9..40,400..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    window.SUPABASE_URL = "https://spqcfmfoabtyykrrkjjs.supabase.co";
+    window.SUPABASE_ANON_KEY = "sb_publishable_5HANDpifoJr6lUy3vHn5nw_E-g7Gvqv";
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body data-page="admin">
+  <div class="grain"></div>
+  <section class="login-view" id="loginView" hidden>
+    <form class="login-card clay-border" id="loginForm">
+      <h1>Painel administrativo</h1>
+      <label>E-mail <input type="email" id="loginEmail" required /></label>
+      <label>Senha <input type="password" id="loginPassword" required /></label>
+      <p class="login-error" id="loginError" hidden></p>
+      <button class="btn-primary" type="submit">Entrar</button>
+      <a href__="index.html" class="login-back">← Voltar à vitrine</a>
+    </form>
+  </section>
+  <section class="admin-view" id="adminView" hidden>
+    <p id="modoReserva" hidden style="background:rgba(229,72,77,0.12);border:1px solid rgba(229,72,77,0.4);color:#ffb4b6;padding:12px 16px;border-radius:14px;font-size:0.85rem;margin-bottom:20px">Banco indisponível — mostrando a cópia local (dados.js). Não é possível salvar alterações agora.</p>
+    <nav class="admin-nav">
+      <strong>Vitrine · Painel</strong>
+      <div class="admin-tabs">
+        <button class="tab active" data-tab="products" type="button">Produtos</button>
+        <button class="tab" data-tab="categories" type="button">Categorias</button>
+        <button class="tab" data-tab="store" type="button">Loja</button>
+      </div>
+      <div class="admin-nav-actions">
+        <button class="btn-outline" id="backupBtn" type="button">Copiar dados do banco</button>
+        <a href__="index.html" class="btn-outline">Ver vitrine</a>
+        <button class="btn-outline" id="logoutBtn" type="button">Sair</button>
+      </div>
+    </nav>
+    <div class="tab-panel" id="tab-products">
+      <div class="panel-head">
+        <h2>Produtos</h2>
+        <button class="btn-primary" id="newProductBtn" type="button">+ Adicionar produto</button>
+      </div>
+      <div class="admin-list" id="productsList"></div>
+    </div>
+    <div class="drawer" id="productDrawer" hidden>
+      <div class="drawer-backdrop" data-close-drawer></div>
+      <form class="drawer-card" id="productForm">
+        <h3 id="drawerTitle">Adicionar produto</h3>
+        <label>Nome <input id="pName" required /></label>
+        <label>Descrição <textarea id="pDesc" rows="2"></textarea></label>
+        <div class="form-row">
+          <label>Preço (R$) <input id="pPrice" type="number" step="0.01" min="0" required /></label>
+          <label>Status
+            <select id="pStatus">
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+              <option value="rascunho">Rascunho</option>
+            </select>
+          </label>
+        </div>
+        <label class="check"><input type="checkbox" id="pPromo" /> Em promoção (aparece no carrossel do topo)</label>
+        <label>Categoria <select id="pCategory"></select></label>
+        <label>Link de compra <input id="pUrl" type="url" placeholder="https://…" /></label>
+        <div class="images-block">
+          <p class="images-title">Imagens do produto</p>
+          <input type="file" id="pImages" multiple accept="image/png,image/jpeg,image/webp,image/gif,image/avif" />
+          <p class="images-hint">Envie quantas imagens quiser de uma vez. A marcada como “principal” aparece no card; as setas mudam a ordem da galeria.</p>
+          <div class="images-grid" id="imagesGrid"></div>
+        </div>
+        <p class="form-error" id="formError" hidden></p>
+        <div class="form-actions">
+          <button type="button" class="btn-outline" data-close-drawer>Cancelar</button>
+          <button type="submit" class="btn-primary" id="saveProductBtn">Salvar produto</button>
+        </div>
+      </form>
+    </div>
+    <div class="tab-panel" id="tab-categories" hidden>
+      <div class="panel-head">
+        <h2>Categorias</h2>
+        <form class="category-add" id="categoryAddForm">
+          <input id="categoryName" placeholder="Nome da categoria" required />
+          <button class="btn-primary" type="submit">Criar</button>
+        </form>
+      </div>
+      <div class="admin-list" id="categoriesList"></div>
+    </div>
+    <div class="tab-panel" id="tab-store" hidden>
+      <form class="store-form" id="storeForm">
+        <label>Nome da loja <input id="sName" /></label>
+        <label>Logo (URL da imagem) <input id="sLogo" type="url" /></label>
+        <label>Texto do rodapé <textarea id="sFooter" rows="2"></textarea></label>
+        <button class="btn-primary" type="submit">Salvar loja</button>
+      </form>
+    </div>
+  </section>
+  <div class="modal" id="backupModal" hidden>
+    <div class="modal-backdrop" data-close-backup></div>
+    <div class="modal-card small clay-border">
+      <h3>Copiar dados do banco</h3>
+      <p id="backupFonte"></p>
+      <p class="login-hint">Copie o texto abaixo e cole TODO o conteúdo no arquivo dados.js (substituindo tudo). Ele guarda produtos, categorias, configurações e o acesso — e serve de apoio se o banco parar.</p>
+      <textarea id="backupText" readonly style="width:100%;min-height:300px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:12px;padding:12px;font-family:monospace;font-size:0.8rem;resize:vertical"></textarea>
+      <div class="form-actions">
+        <button class="btn-outline" data-close-backup type="button">Fechar</button>
+        <button class="btn-primary" id="backupCopyBtn" type="button">Copiar</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal" id="categoryModal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-card small clay-border">
+      <h3>Excluir categoria</h3>
+      <p id="categoryModalText"></p>
+      <label id="categoryMoveWrap" hidden>Mover produtos para
+        <select id="categoryMoveSelect"></select>
+      </label>
+      <div class="form-actions">
+        <button class="btn-outline" data-close-modal type="button">Cancelar</button>
+        <button class="btn-danger" id="categoryDeleteConfirm" type="button">Excluir</button>
+      </div>
+    </div>
+  </div>
+  <script src="dados.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
