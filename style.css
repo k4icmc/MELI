@@ -13,6 +13,10 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
+body { scroll-behavior: smooth; }
+.scroll-reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.75,.25,1); }
+.scroll-reveal.is-visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) { html, body { scroll-behavior: auto; } .scroll-reveal { opacity: 1; transform: none; transition: none; } }
 body {
   background: linear-gradient(to bottom, #1a1a1c 0%, var(--black) 60%);
   color: var(--white);
@@ -109,7 +113,10 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
 .hero-title { font-size: clamp(2.6rem, 5vw, 4.5rem); line-height: 1.05; margin-bottom: 18px; }
 .hero-subtitle { color: var(--light-gray); opacity: 0.8; font-size: 1.05rem; line-height: 1.6; }
 .carousel-container { perspective: 1200px; width: 650px; max-width: 100%; height: 460px; position: relative; }
-.carousel-track { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+.carousel-track { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; touch-action: pan-y; cursor: grab; }
+.carousel-track.is-dragging { cursor: grabbing; }
+.carousel-track.is-dragging .carousel-card { transition: none; }
+.carousel-card { user-select: none; -webkit-user-drag: none; }
 .carousel-card {
   position: absolute; top: 0; right: 0; width: 320px; padding: 15px;
   display: flex; flex-direction: column; cursor: pointer; transform-origin: center right;
@@ -289,8 +296,14 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
 .image-actions button:disabled { opacity: 0.4; cursor: default; }
 .category-add { display: flex; gap: 10px; }
 .category-add input { max-width: 260px; }
-.store-form { display: flex; flex-direction: column; gap: 16px; max-width: 520px; }
+.store-panel { padding: 28px; border: 1px solid rgba(255,255,255,.1); border-radius: 28px; background: radial-gradient(circle at 90% 0%, rgba(162,95,40,.22), transparent 38%), linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.025)); box-shadow: 0 24px 60px rgba(0,0,0,.22); }
+.store-panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,.12); }
+.store-panel-heading h2 { font-size: clamp(1.6rem, 3vw, 2.3rem); margin-bottom: 8px; }
+.store-panel-heading p:last-child { color: var(--light-gray); opacity: .75; max-width: 540px; line-height: 1.5; }
+.store-panel-mark { color: var(--bronze); font-size: .72rem; letter-spacing: .25em; font-weight: 800; border: 1px solid rgba(162,95,40,.55); border-radius: 999px; padding: 8px 12px; }
+.store-form { display: flex; flex-direction: column; gap: 16px; max-width: 620px; }
 .store-form label { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; color: var(--light-gray); }
+.store-form .btn-primary { align-self: flex-start; min-width: 180px; }
 @media (max-width: 1024px) {
   .hero-container { flex-direction: column; align-items: flex-start; justify-content: center; padding-top: 60px; }
   .carousel-container { width: 100%; height: 420px; }
@@ -300,7 +313,11 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
 @media (max-width: 768px) {
   .nav-links { display: none; }
   .hero-bg-text { font-size: 24vw; }
-  .products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .products-grid { grid-template-columns: 1fr; gap: 18px; padding: 0 4px; }
+  .product-card { width: 100%; }
+  .products-section { padding-left: 5%; padding-right: 5%; }
+  .carousel-container { margin-left: 12px; width: calc(100% - 12px); overflow: hidden; }
+  .carousel-card { left: 50%; }
   .card-content { padding: 12px 14px 16px; }
   .card-content h3 { font-size: 0.9rem; }
   .card-price { font-size: 1rem; }
@@ -310,7 +327,10 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
   .carousel-card { width: 260px; margin-left: -130px; }
   .card-image { height: 230px; }
   .carousel-container { height: 380px; }
-  .admin-nav { gap: 12px; }
+  .admin-nav { gap: 12px; position: sticky; top: 12px; z-index: 20; }
+  .store-panel { padding: 20px; }
+  .store-panel-heading { flex-direction: column; }
+  .store-panel-mark { align-self: flex-start; }
   .form-row, .coupon-row { grid-template-columns: 1fr; }
   .category-create-row { align-items: stretch; flex-direction: column; }
   .category-create-row .btn-outline { width: 100%; }
