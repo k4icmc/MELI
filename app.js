@@ -152,7 +152,7 @@ function renderProducts(fall = false) {
   grid.querySelectorAll(".product-card").forEach((card) => card.addEventListener("click", () => openModal(allProducts.find((p) => p.id === card.dataset.id))));
   if (window.gsap && list.length) {
     if (fall) {
-      gsap.from(".product-card", { y: -700, opacity: 0, scale: 0.8, rotation: (i) => (i % 2 ? 8 : -8), duration: 1.1, stagger: 0.07, from: "center", ease: "back.out(1.4)" });
+      gsap.from(".product-card", { y: 36, opacity: 0, scale: 0.96, duration: 0.7, stagger: 0.09, ease: "power3.out" });
     } else {
       gsap.from(".product-card", { y: 24, opacity: 0, duration: 0.45, stagger: 0.04, ease: "power2.out" });
     }
