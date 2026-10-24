@@ -221,6 +221,7 @@ function renderPromoCarousel() {
   const track = $("#promoCarousel");
   if (promoAutoTimer) clearInterval(promoAutoTimer);
   const promos = allProducts.filter((p) => p.is_promo).slice(0, 5);
+  carouselIndex = promos.length ? carouselIndex % promos.length : 0;
   if (!promos.length) {
     track.innerHTML = "";
     $("#carouselEmpty").hidden = false;
@@ -265,12 +266,12 @@ function renderPromoCarousel() {
     const mobile = window.matchMedia("(max-width: 768px)").matches;
     cards.forEach((card, index) => {
       const rel = (index - carouselIndex + promos.length) % promos.length;
-      let x = 0, z = -420, scale = 0.82, opacity = 0, zIndex = 0;
+      let x = 0, z = -520, scale = 0.76, opacity = 0, zIndex = 0;
       if (rel === 0) { x = 0; z = 0; scale = 1; opacity = 1; zIndex = 10; }
-      else if (rel === 1) { x = mobile ? -210 : -245; z = -120; scale = mobile ? 0.84 : 0.88; opacity = 0.72; zIndex = 5; }
-      else if (rel === promos.length - 1) { x = mobile ? 210 : 245; z = -120; scale = mobile ? 0.84 : 0.88; opacity = 0.72; zIndex = 5; }
-      else if (rel === 2) { x = mobile ? -390 : -410; z = -250; scale = mobile ? 0.76 : 0.78; opacity = 0.3; zIndex = 2; }
-      else { x = mobile ? 390 : 410; z = -250; scale = mobile ? 0.76 : 0.78; opacity = 0.25; zIndex = 1; }
+      else if (rel === 1) { x = mobile ? 205 : 245; z = -95; scale = mobile ? 0.86 : 0.9; opacity = 0.78; zIndex = 6; }
+      else if (rel === promos.length - 1) { x = mobile ? -205 : -245; z = -95; scale = mobile ? 0.86 : 0.9; opacity = 0.78; zIndex = 6; }
+      else if (rel === 2) { x = mobile ? 355 : 405; z = -210; scale = mobile ? 0.74 : 0.78; opacity = 0.38; zIndex = 3; }
+      else { x = mobile ? -355 : -405; z = -210; scale = mobile ? 0.74 : 0.78; opacity = 0.38; zIndex = 3; }
       gsap[instant ? "set" : "to"](card, { x, z, scale, opacity, zIndex, duration: 0.65, ease: "power3.out" });
     });
   };
