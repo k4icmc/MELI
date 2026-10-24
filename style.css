@@ -390,19 +390,19 @@ body[data-page="admin"] textarea {
   background-color: #29292e;
 }
 
-/* Layout responsivo do catálogo: evita sobreposição em celulares, tablets,
-   Surface Duo e telas largas, mantendo a animação de entrada nas bordas. */
+/* Layout responsivo do catálogo: cards sempre alinhados em uma grade regular.
+   A entrada individual continua sendo feita pelo stagger do GSAP, sem deslocar
+   cards da mesma linha nem criar sobreposição visual. */
 .products-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  align-items: start;
+  align-items: stretch;
   grid-auto-flow: row;
 }
 .product-card {
   min-width: 0;
+  width: 100%;
+  margin-top: 0 !important;
   isolation: isolate;
-}
-.products-grid .product-card:nth-child(even) {
-  margin-top: 14px;
 }
 .scroll-reveal {
   will-change: opacity, transform;
@@ -413,7 +413,6 @@ body[data-page="admin"] textarea {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
   }
-  .products-grid .product-card:nth-child(even) { margin-top: 12px; }
   .products-section { padding-left: 4%; padding-right: 4%; }
 }
 
@@ -426,9 +425,8 @@ body[data-page="admin"] textarea {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px 12px;
     padding: 0 3px;
-    align-items: start;
+    align-items: stretch;
   }
-  .products-grid .product-card:nth-child(even) { margin-top: 8px; }
   .product-card { width: 100%; overflow: hidden; }
   .product-card img { aspect-ratio: 1 / 1; }
   .card-content { padding: 12px 12px 15px; }
@@ -440,7 +438,7 @@ body[data-page="admin"] textarea {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .products-grid .product-card:nth-child(even) { margin-top: 0; }
+  .products-grid .product-card { transform: none !important; }
 }
 
 /* Cards do catálogo inspirados no modelo enviado: imagem destacada, seta circular,
