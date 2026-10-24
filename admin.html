@@ -98,3 +98,49 @@
         <form class="category-add" id="categoryAddForm">
           <input id="categoryName" placeholder="Nome da categoria" required />
           <button class="btn-primary" type="submit">Criar</button>
+        </form>
+      </div>
+      <div class="admin-list" id="categoriesList"></div>
+    </div>
+    <div class="tab-panel" id="tab-store" hidden>
+      <form class="store-form" id="storeForm">
+        <label>Nome da loja <input id="sName" /></label>
+        <label>Logo por link <input id="sLogo" type="url" placeholder="https://…" /></label>
+        <label>Ou envie a logo <input id="sLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" /></label>
+        <div class="logo-preview-wrap"><span>Prévia da logo</span><img id="sLogoPreview" class="logo-preview" alt="Prévia da logo" hidden /></div>
+        <label>Texto do rodapé <textarea id="sFooter" rows="2"></textarea></label>
+        <button class="btn-primary" type="submit">Salvar loja</button>
+      </form>
+    </div>
+  </section>
+  <div class="modal" id="backupModal" hidden>
+    <div class="modal-backdrop" data-close-backup></div>
+    <div class="modal-card small clay-border">
+      <h3>Copiar dados do banco</h3>
+      <p id="backupFonte"></p>
+      <p class="login-hint">Copie o texto abaixo e cole TODO o conteúdo no arquivo dados.js (substituindo tudo). Ele guarda produtos, categorias, configurações e o acesso — e serve de apoio se o banco parar.</p>
+      <textarea id="backupText" readonly style="width:100%;min-height:300px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:12px;padding:12px;font-family:monospace;font-size:0.8rem;resize:vertical"></textarea>
+      <div class="form-actions">
+        <button class="btn-outline" data-close-backup type="button">Fechar</button>
+        <button class="btn-primary" id="backupCopyBtn" type="button">Copiar</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal" id="categoryModal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-card small clay-border">
+      <h3>Excluir categoria</h3>
+      <p id="categoryModalText"></p>
+      <label id="categoryMoveWrap" hidden>Mover produtos para
+        <select id="categoryMoveSelect"></select>
+      </label>
+      <div class="form-actions">
+        <button class="btn-outline" data-close-modal type="button">Cancelar</button>
+        <button class="btn-danger" id="categoryDeleteConfirm" type="button">Excluir</button>
+      </div>
+    </div>
+  </div>
+  <script src="dados.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
