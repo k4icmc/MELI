@@ -53,7 +53,9 @@ function aplicarIdentidade(cfg) {
     logo.className = "logo-img";
     logo.src = cfg.logo_url;
     logo.alt = "";
-    document.querySelector(".logo .logo-dot")?.replaceWith(logo);
+    const atual = document.querySelector(".logo .logo-img");
+    if (atual) atual.replaceWith(logo);
+    else document.querySelector(".logo .logo-dot")?.replaceWith(logo);
   }
   if (cfg.footer_text) $("#footerText").textContent = cfg.footer_text;
 }
@@ -77,16 +79,22 @@ function prepararCategorias(lista) {
   });
 }
 async function loadProducts() {
+  const produtosLocais = (window.dados?.produtos || []).filter((p) => p.status === "ativo");
+  prepararProdutos(produtosLocais);
   try {
-    const { data, error } = await db.from("products")
-      .select("id,name,description,price,purchase_url,images,is_promo,category_id,category_name")
-      .eq("status", "ativo").order("created_at", { ascending: false }).limit(200);
+    const { data, error } = await db.from("products").select("id,name,description,price,purchase_url,images,is_promo,category_id,category_name").eq("status", "ativo").order("created_at", { ascending: false }).limit(200);
     if (error) throw error;
-    prepararProdutos(data || []);
+    prepararProdutos(semDuplicados(produtosLocais, data || []));
   } catch (err) {
     usarCopia();
-    prepararProdutos((window.dados?.produtos || []).filter((p) => p.status === "ativo"));
   }
+}
+function chaveProduto(p) {
+  return String(p.name || "").trim().toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+function semDuplicados(principal, complementar) {
+  const chaves = new Set(principal.map(chaveProduto));
+  return [...principal, ...complementar.filter((p) => !chaves.has(chaveProduto(p)))];
 }
 function prepararProdutos(lista) {
   allProducts = lista;
@@ -225,6 +233,14 @@ async function initAdmin() {
 }
 function setupAdminForms() {
   $("#loginForm").addEventListener("submit", onLogin);
+  $("#passwordToggle").addEventListener("click", () => {
+    const input = $("#loginPassword");
+    const visible = input.type === "password";
+    input.type = visible ? "text" : "password";
+    $("#passwordToggle").textContent = visible ? "Ocultar" : "Mostrar";
+    $("#passwordToggle").setAttribute("aria-label", visible ? "Ocultar senha" : "Mostrar senha");
+    $("#passwordToggle").setAttribute("aria-pressed", String(visible));
+  });
   $("#logoutBtn").addEventListener("click", () => {
     sessionStorage.removeItem("painelLiberado");
     $("#adminView").hidden = true;
@@ -262,13 +278,14 @@ async function enterPanel() {
   loadStore();
 }
 async function loadAdminProducts() {
+  const produtosLocais = window.dados?.produtos || [];
+  prepararAdminProdutos(produtosLocais);
   try {
     const { data, error } = await db.from("products").select("*").order("created_at", { ascending: false });
     if (error) throw error;
-    prepararAdminProdutos(data || []);
+    prepararAdminProdutos(semDuplicados(produtosLocais, data || []));
   } catch (err) {
     usarCopia();
-    prepararAdminProdutos(window.dados?.produtos || []);
   }
 }
 function prepararAdminProdutos(lista) {
@@ -569,7 +586,6 @@ async function copiarTexto(texto) {
     try { return document.execCommand("copy"); } catch (e) { return false; }
   }
 }
-
 
 if (document.body.dataset.page === "home") initHome();
 if (document.body.dataset.page === "admin") initAdmin();
