@@ -570,5 +570,6 @@ async function copiarTexto(texto) {
   }
 }
 
+
 if (document.body.dataset.page === "home") initHome();
 if (document.body.dataset.page === "admin") initAdmin();
