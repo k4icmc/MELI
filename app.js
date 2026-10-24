@@ -228,16 +228,31 @@ function renderPromoCarousel() {
   }
   $("#carouselEmpty").hidden = true;
   track.innerHTML = promos.map((p) => `
-    <div class="carousel-card liquid-glass clay-border" data-id="${p.id}">
-      <div class="card-image" style="background-image:url('${escapeHtml(mainImageOf(p))}')"></div>
-      <div class="card-info">
-        <h3>${escapeHtml(tituloProduto(p.name))}</h3>
-        <p>${escapeHtml(p.category_name || "")}</p>
-        <strong>${money(p.price)}</strong>
-      </div>
-    </div>`).join("");
+  <article class="carousel-card promo-card liquid-glass clay-border" data-id="${escapeHtml(p.id)}" tabindex="0" role="button" aria-label="Ver oferta de ${escapeHtml(tituloProduto(p.name))}">
+  <span class="promo-card-ribbon">Oferta especial</span>
+  <button class="promo-card-heart" type="button" aria-label="Favoritar ${escapeHtml(tituloProduto(p.name))}" aria-pressed="false">♡</button>
+  <div class="card-image" style="background-image:url('${escapeHtml(mainImageOf(p))}')"></div>
+  <div class="card-info">
+  <p class="promo-card-kicker">${escapeHtml(p.category_name || "Promoção")}</p>
+  <h3>${escapeHtml(tituloProduto(p.name))}</h3>
+  <div class="promo-card-price"><strong>${money(p.price)}</strong>${p.discount_percent ? `<span>${escapeHtml(p.discount_percent)}% OFF</span>` : ""}</div>
+  <span class="promo-card-cta">Ver produto <span aria-hidden="true">↗</span></span>
+  </div>
+  </article>`).join("");
   const cards = track.querySelectorAll(".carousel-card");
-  cards.forEach((card) => card.addEventListener("click", () => openModal(allProducts.find((p) => String(p.id) === String(card.dataset.id)))));
+  cards.forEach((card) => {
+    const product = allProducts.find((p) => String(p.id) === String(card.dataset.id));
+    const open = () => openModal(product);
+    card.addEventListener("click", (event) => { if (!event.target.closest("button")) open(); });
+    card.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); } });
+    card.querySelector(".promo-card-heart")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const button = event.currentTarget;
+      const active = button.getAttribute("aria-pressed") === "true";
+      button.setAttribute("aria-pressed", String(!active));
+      button.textContent = active ? "♡" : "♥";
+    });
+  });
   const apply = (instant) => {
     const mobile = window.matchMedia("(max-width: 768px)").matches;
     cards.forEach((card, index) => {
