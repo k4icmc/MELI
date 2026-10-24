@@ -228,7 +228,7 @@ function renderPromoCarousel() {
   }
   $("#carouselEmpty").hidden = true;
   track.innerHTML = promos.map((p) => `
-  <article class="carousel-card promo-card liquid-glass clay-border" data-id="${escapeHtml(p.id)}" tabindex="0" role="button" aria-label="Ver oferta de ${escapeHtml(tituloProduto(p.name))}">
+  <article class="carousel-card promo-card liquid-glass clay-border" data-id="${escapeHtml(p.id)}" data-promo-index="${promos.indexOf(p)}" tabindex="0" role="button" aria-label="Ver oferta de ${escapeHtml(tituloProduto(p.name))}">
   <span class="promo-card-ribbon">Oferta especial</span>
   <button class="promo-card-heart" type="button" aria-label="Favoritar ${escapeHtml(tituloProduto(p.name))}" aria-pressed="false">♡</button>
   <div class="card-image" style="background-image:url('${escapeHtml(mainImageOf(p))}')"></div>
@@ -241,7 +241,7 @@ function renderPromoCarousel() {
   </article>`).join("");
   const cards = track.querySelectorAll(".carousel-card");
   cards.forEach((card) => {
-    const product = allProducts.find((p) => String(p.id) === String(card.dataset.id));
+    const product = promos[Number(card.dataset.promoIndex)] || allProducts.find((p) => String(p.id) === String(card.dataset.id));
     const open = () => openModal(product);
     card.addEventListener("click", (event) => { if (!event.target.closest("button")) open(); });
     card.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); } });
@@ -259,10 +259,10 @@ function renderPromoCarousel() {
       const rel = (index - carouselIndex + promos.length) % promos.length;
       let x = 0, z = -420, scale = 0.82, opacity = 0, zIndex = 0;
       if (rel === 0) { x = 0; z = 0; scale = 1; opacity = 1; zIndex = 10; }
-      else if (rel === 1) { x = mobile ? -210 : -245; z = -120; scale = mobile ? 0.84 : 0.88; opacity = 0.72; zIndex = 5; }
-      else if (rel === promos.length - 1) { x = mobile ? 210 : -410; z = -250; scale = mobile ? 0.76 : 0.78; opacity = 0.3; zIndex = 2; }
-      else if (rel === 2) { x = mobile ? 210 : 245; z = -120; scale = mobile ? 0.84 : 0.88; opacity = 0.72; zIndex = 5; }
-      else { x = mobile ? -210 : 410; z = -250; scale = mobile ? 0.76 : 0.78; opacity = 0.25; zIndex = 1; }
+      else if (rel === 1) { x = mobile ? 210 : 245; z = -120; scale = mobile ? 0.84 : 0.88; opacity = 0.72; zIndex = 5; }
+      else if (rel === promos.length - 1) { x = mobile ? -210 : -245; z = -120; scale = mobile ? 0.84 : 0.88; opacity = 0.72; zIndex = 5; }
+      else if (rel === 2) { x = mobile ? 390 : 410; z = -250; scale = mobile ? 0.76 : 0.78; opacity = 0.3; zIndex = 2; }
+      else { x = mobile ? -390 : -410; z = -250; scale = mobile ? 0.76 : 0.78; opacity = 0.25; zIndex = 1; }
       gsap[instant ? "set" : "to"](card, { x, z, scale, opacity, zIndex, duration: 0.65, ease: "power3.out" });
     });
   };
