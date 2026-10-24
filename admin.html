@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel · Vitrine de Ofertas</title>
+  <link rel="icon" href="logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..900;1,9..40,400..900&display=swap" rel="stylesheet" />
@@ -20,16 +21,18 @@
     <form class="login-card clay-border" id="loginForm">
       <h1>Painel administrativo</h1>
       <label>E-mail <input type="email" id="loginEmail" required /></label>
-      <label>Senha <input type="password" id="loginPassword" required /></label>
+      <label>Senha
+        <span class="password-field"><input type="password" id="loginPassword" required /><button type="button" class="password-toggle" id="passwordToggle" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button></span>
+      </label>
       <p class="login-error" id="loginError" hidden></p>
       <button class="btn-primary" type="submit">Entrar</button>
-      <a href__="index.html" class="login-back">← Voltar à vitrine</a>
+      <a href="index.html" class="login-back">← Voltar à vitrine</a>
     </form>
   </section>
   <section class="admin-view" id="adminView" hidden>
     <p id="modoReserva" hidden style="background:rgba(229,72,77,0.12);border:1px solid rgba(229,72,77,0.4);color:#ffb4b6;padding:12px 16px;border-radius:14px;font-size:0.85rem;margin-bottom:20px">Banco indisponível — mostrando a cópia local (dados.js). Não é possível salvar alterações agora.</p>
     <nav class="admin-nav">
-      <strong>Vitrine · Painel</strong>
+      <strong class="admin-brand"><img class="logo-img" src="logo.png" alt="Logo da loja" onerror="this.hidden=true" /> Vitrine · Painel</strong>
       <div class="admin-tabs">
         <button class="tab active" data-tab="products" type="button">Produtos</button>
         <button class="tab" data-tab="categories" type="button">Categorias</button>
@@ -37,7 +40,7 @@
       </div>
       <div class="admin-nav-actions">
         <button class="btn-outline" id="backupBtn" type="button">Copiar dados do banco</button>
-        <a href__="index.html" class="btn-outline">Ver vitrine</a>
+        <a href="index.html" class="btn-outline">Ver vitrine</a>
         <button class="btn-outline" id="logoutBtn" type="button">Sair</button>
       </div>
     </nav>
