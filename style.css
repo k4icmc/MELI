@@ -122,9 +122,9 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
 .carousel-track.is-dragging .carousel-card { transition: none; }
 .carousel-card { user-select: none; -webkit-user-drag: none; }
 .carousel-card {
-  position: absolute; top: 0; right: 0; width: 320px; padding: 15px;
-  display: flex; flex-direction: column; cursor: pointer; transform-origin: center right;
-}
+  position: absolute; top: 0; left: 50%; right: auto; width: 320px; margin-left: -160px; padding: 15px;
+  display: flex; flex-direction: column; cursor: pointer; transform-origin: center center;
+  }
 .card-image {
   width: 100%; height: 300px; border-radius: 16px; background-color: #2b2b30; background-size: cover;
   background-position: center; margin-bottom: 15px;
@@ -350,7 +350,7 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
 @media (max-width: 1024px) {
   .hero-container { flex-direction: column; align-items: flex-start; justify-content: center; padding-top: 60px; }
   .carousel-container { width: 100%; height: 420px; }
-  .carousel-card { right: auto; left: 50%; margin-left: -160px; transform-origin: center center; }
+  .carousel-card { left: 50%; right: auto; margin-left: -160px; transform-origin: center center; }
   .modal-card { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
