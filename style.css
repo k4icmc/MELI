@@ -451,7 +451,7 @@ body[data-page="admin"] textarea {
   position: relative;
   transition: transform .35s cubic-bezier(.2,.75,.25,1), box-shadow .35s ease;
 }
-.showcase-card:hover { transform: translateY(-8px) rotate(-.35deg); }
+.showcase-card:hover { transform: translateY(-8px); }
 .showcase-image-wrap { position: relative; overflow: hidden; background: #242428; }
 .showcase-product-image { aspect-ratio: 4 / 3 !important; object-fit: cover; transition: transform .6s cubic-bezier(.2,.75,.25,1); }
 .showcase-card:hover .showcase-product-image { transform: scale(1.05); }
@@ -462,7 +462,7 @@ body[data-page="admin"] textarea {
 .showcase-glow { position: absolute; left: 18px; right: 18px; bottom: 7px; height: 3px; border-radius: 99px; background: var(--bronze); opacity: .85; filter: blur(2px); }
 @media (max-width: 768px) {
   .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 12px; }
-  .products-grid .product-card:nth-child(even) { margin-top: 10px; }
+  .products-grid .product-card:nth-child(even) { margin-top: 0; }
   .showcase-card:hover { transform: translateY(-3px); }
   .showcase-arrow { width: 32px; height: 32px; right: 9px; bottom: 9px; font-size: 1.1rem; }
   .showcase-content { padding: 13px 12px 18px; }
