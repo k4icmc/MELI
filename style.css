@@ -115,7 +115,7 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
   display: flex; flex-direction: column; cursor: pointer; transform-origin: center right;
 }
 .card-image {
-  width: 100%; height: 300px; border-radius: 16px; background-size: cover;
+  width: 100%; height: 300px; border-radius: 16px; background-color: #2b2b30; background-size: cover;
   background-position: center; margin-bottom: 15px;
 }
 .card-info h3 { font-size: 1.2rem; margin-bottom: 4px; }
@@ -125,7 +125,8 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
   text-align: center; color: var(--light-gray); opacity: 0.7;
 }
 .products-section {
-  max-width: 1400px; margin: 0 auto; padding: 100px 5% 80px;
+  max-width: 1400px; margin: 0 auto; padding: 120px 5% 90px;
+  background: radial-gradient(circle at 12% 20%, rgba(162,95,40,.08), transparent 34%);
   display: flex; flex-direction: column; gap: 40px;
 }
 .section-head {
@@ -144,7 +145,9 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
 .toolbar select option { background: var(--dark-gray); color: var(--white); }
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 28px; }
 .product-card { position: relative; cursor: pointer; transition: transform 0.4s ease; will-change: transform; }
-.product-card:hover { transform: translateY(-10px); }
+.product-card:hover { transform: translateY(-10px) rotate(-0.4deg); box-shadow: 12px 18px 28px rgba(10,10,10,.9), 0 0 0 1px rgba(162,95,40,.35); }
+.product-card img { background: linear-gradient(135deg, #34343a, #1b1b1f); }
+.product-card::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
 .product-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
 .card-content { padding: 18px 20px 22px; }
 .card-category {
@@ -260,6 +263,10 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
 .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; }
 .form-error { color: var(--danger); font-size: 0.85rem; }
 .images-block { border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 14px; }
+.image-url-row { display: flex; align-items: flex-end; gap: 10px; }
+.image-url-row label { flex: 1; }
+.logo-preview-wrap { display: flex; align-items: center; gap: 12px; color: var(--light-gray); font-size: 0.82rem; }
+.logo-preview { width: 72px; height: 72px; object-fit: contain; border-radius: 12px; background: rgba(255,255,255,.06); padding: 8px; }
 .images-title { font-weight: 700; margin-bottom: 8px; }
 .images-hint { font-size: 0.8rem; color: var(--light-gray); opacity: 0.75; margin: 8px 0 12px; }
 .images-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
