@@ -174,15 +174,40 @@ function renderPromoCarousel() {
   const apply = (instant) => {
     cards.forEach((card, index) => {
       const rel = (index - carouselIndex + promos.length) % promos.length;
-      let x = -100, z = -500, scale = 0.8, opacity = 0, zIndex = 0;
+      let x = 0, z = -420, scale = 0.82, opacity = 0, zIndex = 0;
       if (rel === 0) { x = 0; z = 0; scale = 1; opacity = 1; zIndex = 10; }
-      else if (rel === 1) { x = -240; z = -150; scale = 0.9; opacity = 0.7; zIndex = 5; }
-      else if (rel === 2) { x = -430; z = -300; scale = 0.8; opacity = 0.3; zIndex = 1; }
-      gsap[instant ? "set" : "to"](card, { x, z, scale, opacity, zIndex, duration: 1, ease: "power3.out" });
+      else if (rel === 1) { x = 250; z = -110; scale = 0.9; opacity = 0.72; zIndex = 5; }
+      else if (rel === promos.length - 1) { x = -250; z = -110; scale = 0.9; opacity = 0.72; zIndex = 5; }
+      else if (rel === 2) { x = 430; z = -260; scale = 0.8; opacity = 0.28; zIndex = 1; }
+      gsap[instant ? "set" : "to"](card, { x, z, scale, opacity, zIndex, duration: 0.65, ease: "power3.out" });
     });
   };
   apply(true);
-  setInterval(() => { carouselIndex = (carouselIndex + 1) % promos.length; apply(false); }, 4000);
+  let dragStartX = null;
+  let dragMoved = false;
+  const finishDrag = (delta) => {
+    if (Math.abs(delta) < 45) return;
+    carouselIndex = (carouselIndex + (delta < 0 ? 1 : promos.length - 1)) % promos.length;
+    apply(false);
+  };
+  track.addEventListener("pointerdown", (event) => {
+    dragStartX = event.clientX;
+    dragMoved = false;
+    track.classList.add("is-dragging");
+    track.setPointerCapture?.(event.pointerId);
+  });
+  track.addEventListener("pointermove", (event) => {
+    if (dragStartX === null) return;
+    dragMoved = Math.abs(event.clientX - dragStartX) > 8;
+  });
+  track.addEventListener("pointerup", (event) => {
+    if (dragStartX === null) return;
+    finishDrag(event.clientX - dragStartX);
+    dragStartX = null;
+    track.classList.remove("is-dragging");
+  });
+  track.addEventListener("pointercancel", () => { dragStartX = null; track.classList.remove("is-dragging"); });
+  track.addEventListener("click", (event) => { if (dragMoved) { event.preventDefault(); event.stopPropagation(); } }, true);
 }
 function setupFilters() {
   $("#searchInput").addEventListener("input", () => renderProducts());
@@ -217,14 +242,15 @@ function closeModal() {
   document.body.style.overflow = "";
 }
 function setupAnimations() {
+  document.querySelectorAll(".gsap-reveal, .products-grid, .footer").forEach((el) => el.classList.add("scroll-reveal"));
+  const observer = new IntersectionObserver((entries) => entries.forEach((entry) => entry.target.classList.toggle("is-visible", entry.isIntersecting)), { threshold: 0.12 });
+  document.querySelectorAll(".scroll-reveal").forEach((el) => observer.observe(el));
   if (!window.gsap) return;
   gsap.registerPlugin(window.ScrollTrigger);
   gsap.from(".nav", { y: -30, opacity: 0, duration: 0.8, ease: "power3.out" });
   gsap.from(".hero-content > *", { y: 70, opacity: 0, duration: 0.9, stagger: 0.12, ease: "power3.out", delay: 0.2 });
   gsap.from(".carousel-container", { y: 90, opacity: 0, duration: 1, ease: "power3.out", delay: 0.35 });
   gsap.to("#parallaxText", { yPercent: 50, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
-  gsap.from(".gsap-reveal", { y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: "power2.out", scrollTrigger: { trigger: ".products-section", start: "top 80%" } });
-  gsap.from(".footer", { opacity: 0, y: 30, duration: 1, ease: "power2.out", scrollTrigger: { trigger: ".footer", start: "top 95%" } });
 }
 
 /* ============ PAINEL ============ */
