@@ -115,6 +115,8 @@ function cardHtml(p) {
         <p class="card-category">${escapeHtml(p.category_name || "")}</p>
         <h3>${escapeHtml(p.name)}</h3>
         <p class="card-price">${money(p.price)}</p>
+        ${p.discount_percent ? `<p class="discount-copy">${escapeHtml(p.discount_percent)}% de desconto</p>` : ""}
+        ${p.coupon_code && p.coupon_discount ? `<p class="coupon-copy">Use o cupom ${escapeHtml(p.coupon_code)} para ter ${escapeHtml(p.coupon_discount)}% de desconto</p>` : ""}
         <span class="btn-primary card-btn">Ver oferta</span>
       </div>
     </article>`;
@@ -126,6 +128,13 @@ function renderProducts(fall = false) {
   const catId = $("#categorySelect")?.value || "";
   $("#sectionTitle").textContent = catId ? allCategories.find((c) => c.id === catId)?.name || "Ofertas" : "Todas as ofertas";
   grid.innerHTML = list.map(cardHtml).join("");
+  const coupon = list.find((p) => p.coupon_code && Number(p.coupon_discount));
+  let couponNotice = document.querySelector(".coupon-notice");
+  if (coupon) {
+    if (!couponNotice) { couponNotice = document.createElement("p"); couponNotice.className = "coupon-notice"; grid.parentElement.insertBefore(couponNotice, grid); }
+    couponNotice.textContent = `Use o cupom ${coupon.coupon_code} para ter ${Number(coupon.coupon_discount)}% de desconto`;
+    couponNotice.hidden = false;
+  } else if (couponNotice) couponNotice.hidden = true;
   grid.querySelectorAll(".product-card").forEach((card) => card.addEventListener("click", () => openModal(allProducts.find((p) => p.id === card.dataset.id))));
   if (window.gsap && list.length) {
     if (fall) {
@@ -312,10 +321,29 @@ const productRow = (p) => `
       <button class="btn-danger" data-delete="${p.id}" type="button">Excluir</button>
     </div>
   </div>`;
+function parseMoeda(value) {
+  const normalized = String(value || "").replace(/\s/g, "").replace(/R\$/gi, "").replace(/\./g, "").replace(",", ".");
+  return Number(normalized) || 0;
+}
+function formatarMoeda(value) {
+  return Number(value || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 function setupProductForm() {
   $("#newProductBtn").addEventListener("click", () => openDrawer(null));
+  $("#pPrice").addEventListener("input", (event) => { const digits = event.target.value.replace(/\D/g, ""); event.target.value = digits ? formatarMoeda(Number(digits) / 100) : ""; });
+  $("#newCategoryInlineBtn").addEventListener("click", async () => {
+    const name = prompt("Nome da nova categoria:");
+    if (!name?.trim()) return;
+    await criarCategoria(name.trim(), true);
+  });
   document.querySelectorAll("[data-close-drawer]").forEach((el) => el.addEventListener("click", closeDrawer));
   $("#pImages").addEventListener("change", onImagesSelected);
+  $("#pImageUrl").addEventListener("change", () => {
+    const url = $("#pImageUrl").value.trim();
+    if (!url) return;
+    productImages = [{ url, is_main: true }];
+    renderImages();
+  });
   $("#productForm").addEventListener("submit", onSaveProduct);
 }
 function openDrawer(product) {
@@ -323,13 +351,17 @@ function openDrawer(product) {
   $("#drawerTitle").textContent = product ? "Editar produto" : "Adicionar produto";
   $("#pName").value = product?.name || "";
   $("#pDesc").value = product?.description || "";
-  $("#pPrice").value = product?.price ?? "";
+  $("#pPrice").value = product?.price ? formatarMoeda(product.price) : "";
   $("#pStatus").value = product?.status || "ativo";
   $("#pPromo").checked = Boolean(product?.is_promo);
+  $("#pDiscount").value = product?.discount_percent ?? "";
+  $("#pCoupon").value = product?.coupon_code || "";
+  $("#pCouponDiscount").value = product?.coupon_discount ?? "";
   $("#pUrl").value = product?.purchase_url || "";
-  $("#pCategory").innerHTML = '<option value="">Sem categoria</option>' + adminCategories.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
+  $("#pCategory").innerHTML = '<option value="">Sem categoria</option>' + adminCategories.filter((c) => c.status !== "inativa").map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
   $("#pCategory").value = product?.category_id || "";
   productImages = [...(product?.images || [])];
+  $("#pImageUrl").value = productImages[0]?.url && !productImages[0]?.path ? productImages[0].url : "";
   renderImages();
   $("#formError").hidden = true;
   $("#productDrawer").hidden = false;
@@ -347,27 +379,21 @@ async function onImagesSelected(event) {
   const files = Array.from(event.target.files || []);
   event.target.value = "";
   if (!files.length) return;
-  const btn = $("#saveProductBtn");
-  btn.disabled = true;
   try {
     for (const file of files) {
-      const uploaded = await uploadImage(file);
-      productImages.push({ ...uploaded, is_main: false });
+      const url = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("não foi possível ler o arquivo"));
+        reader.readAsDataURL(file);
+      });
+      productImages.push({ url, is_main: false, name: file.name });
     }
     if (!productImages.some((i) => i.is_main)) productImages[0].is_main = true;
     renderImages();
   } catch (err) {
-    showFormError("Não foi possível enviar a imagem: " + err.message);
-  } finally {
-    btn.disabled = false;
+    showFormError("Não foi possível pré-visualizar a imagem: " + err.message);
   }
-}
-async function uploadImage(file) {
-  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-  const path = `produtos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const { error } = await db.storage.from("product-images").upload(path, file);
-  if (error) throw error;
-  return { url: db.storage.from("product-images").getPublicUrl(path).data.publicUrl, path };
 }
 function renderImages() {
   const grid = $("#imagesGrid");
@@ -409,13 +435,17 @@ async function onSaveProduct(event) {
   const payload = {
     name: $("#pName").value.trim(),
     description: $("#pDesc").value.trim() || null,
-    price: Number($("#pPrice").value),
+    price: parseMoeda($("#pPrice").value),
     status: $("#pStatus").value,
     is_promo: $("#pPromo").checked,
+    discount_percent: Number($("#pDiscount").value.replace(",", ".")) || 0,
+    coupon_code: $("#pCoupon").value.trim().toUpperCase() || null,
+    coupon_discount: Number($("#pCouponDiscount").value.replace(",", ".")) || 0,
     category_id: categoryId,
     category_name: category?.name || null,
     purchase_url: $("#pUrl").value.trim() || null,
     images: productImages.map((img, i) => ({ ...img, order: i })),
+    image_url: productImages[0]?.url || null,
   };
   if (!payload.name || !(payload.price > 0)) { showFormError("Informe o nome e um preço maior que zero."); return; }
   try {
@@ -464,13 +494,18 @@ function prepararAdminCategorias(lista) {
   }));
   document.querySelectorAll("[data-cat-delete]").forEach((btn) => btn.addEventListener("click", () => openCategoryModal(adminCategories.find((c) => c.id === btn.dataset.catDelete))));
 }
+async function criarCategoria(name, selecionar = false) {
+  const result = await db.from("categories").insert({ name, slug: slugify(name), status: "ativa" }).select().single();
+  if (result.error) { showFormError("Não foi possível criar a categoria: " + result.error.message); return; }
+  await loadAdminCategories();
+  if (selecionar) $("#pCategory").value = result.data.id;
+}
 async function addCategory(event) {
   event.preventDefault();
   const name = $("#categoryName").value.trim();
   if (!name) return;
-  await db.from("categories").insert({ name, slug: slugify(name) });
+  await criarCategoria(name);
   $("#categoryName").value = "";
-  await loadAdminCategories();
 }
 function setupCategoryUI() {
   $("#categoryAddForm").addEventListener("submit", addCategory);
