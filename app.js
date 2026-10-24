@@ -9,9 +9,16 @@ const money = (v) => new Intl.NumberFormat("pt-BR", { style: "currency", currenc
 const slugify = (v) => String(v || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const escapeHtml = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const PLACEHOLDER = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="#2b2b30"/></svg>');
+const imageUrlOf = (image) => typeof image === "string" ? image : (image?.url || image?.path || "");
+const imageListOf = (p) => {
+  const raw = Array.isArray(p?.images) ? p.images : [];
+  const list = raw.map(imageUrlOf).filter(Boolean);
+  if (list.length) return list;
+  return p?.image_url ? [p.image_url] : [];
+};
 const mainImageOf = (p) => {
-  const imgs = p.images || [];
-  return (imgs.find((i) => i.is_main) || imgs[0] || {}).url || p.image_url || PLACEHOLDER;
+  const imgs = Array.isArray(p?.images) ? p.images : [];
+  return imageUrlOf(imgs.find((i) => typeof i === "object" && i?.is_main)) || imageListOf(p)[0] || PLACEHOLDER;
 };
 
 let allProducts = [];
@@ -91,10 +98,3 @@ async function loadProducts() {
 }
 function chaveProduto(p) {
   return String(p.name || "").trim().toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
-function semDuplicados(principal, complementar) {
-  const chaves = new Set(principal.map(chaveProduto));
-  return [...principal, ...complementar.filter((p) => !chaves.has(chaveProduto(p)))];
-}
-function prepararProdutos(lista) {
-  allProducts = lista;
