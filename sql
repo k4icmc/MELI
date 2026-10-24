@@ -35,9 +35,18 @@ create table if not exists public.products (
   status text not null default 'ativo'
     check (status in ('ativo', 'inativo', 'rascunho')),
   is_promo boolean not null default false,
+  discount_percent numeric(5,2) not null default 0,
+  coupon_code text,
+  coupon_discount numeric(5,2) not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Compatibilidade: adiciona os campos caso a tabela já existisse antes desta versão.
+alter table public.products add column if not exists discount_percent numeric(5,2) not null default 0;
+alter table public.products add column if not exists coupon_code text;
+alter table public.products add column if not exists coupon_discount numeric(5,2) not null default 0;
+alter table public.products add column if not exists images jsonb not null default '[]'::jsonb;
 
 -- ---------- CONFIGURAÇÕES DA LOJA ----------
 create table if not exists public.site_settings (
