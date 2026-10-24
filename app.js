@@ -188,11 +188,11 @@ function renderProducts(fall = false) {
     couponNotice.hidden = false;
   } else if (couponNotice) couponNotice.hidden = true;
   grid.querySelectorAll(".product-card").forEach((card) => {
-    const product = allProducts.find((p) => p.id === card.dataset.id);
-    card.addEventListener("click", (event) => {
-      if (event.target.closest("button, a")) return;
-      card.classList.toggle("is-flipped");
-    });
+  const product = allProducts.find((p) => String(p.id) === String(card.dataset.id));
+  card.addEventListener("click", (event) => {
+  if (event.target.closest("button, a")) return;
+  openModal(product);
+  });
     card.querySelectorAll(".flip-trigger").forEach((button) => button.addEventListener("click", (event) => {
       event.stopPropagation();
       card.classList.toggle("is-flipped");
@@ -237,7 +237,7 @@ function renderPromoCarousel() {
       </div>
     </div>`).join("");
   const cards = track.querySelectorAll(".carousel-card");
-  cards.forEach((card) => card.addEventListener("click", () => openModal(allProducts.find((p) => p.id === card.dataset.id))));
+  cards.forEach((card) => card.addEventListener("click", () => openModal(allProducts.find((p) => String(p.id) === String(card.dataset.id)))));
   const apply = (instant) => {
     const mobile = window.matchMedia("(max-width: 768px)").matches;
     cards.forEach((card, index) => {
@@ -322,7 +322,16 @@ function openModal(product) {
   heart.setAttribute("aria-pressed", "false");
   heart.onclick = () => { const active = heart.getAttribute("aria-pressed") === "true"; heart.setAttribute("aria-pressed", String(!active)); heart.textContent = active ? "♡" : "♥"; };
   const buy = $("#modalBuy");
-  if (product.purchase_url) { buy.href = product.purchase_url; buy.hidden = false; } else buy.hidden = true;
+  if (product.purchase_url) {
+    buy.href = product.purchase_url;
+    buy.hidden = false;
+    buy.removeAttribute("aria-disabled");
+  } else {
+    buy.removeAttribute("href");
+    buy.hidden = false;
+    buy.setAttribute("aria-disabled", "true");
+    buy.textContent = "Compra indisponível";
+  }
   $("#productModal").hidden = false;
   document.body.style.overflow = "hidden";
   if (window.gsap) gsap.from(".modal-card", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" });
