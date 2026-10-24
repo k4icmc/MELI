@@ -8,6 +8,7 @@ const $ = (sel) => document.querySelector(sel);
 const money = (v) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(v) || 0);
 const slugify = (v) => String(v || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const escapeHtml = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const tituloProduto = (v) => String(v || "Produto sem nome").trim().slice(0, 80);
 const PLACEHOLDER = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="#2b2b30"/></svg>');
 const imageUrlOf = (image) => typeof image === "string" ? image : (image?.url || image?.path || "");
 const imageListOf = (p) => {
@@ -129,7 +130,7 @@ function cardHtml(p) {
           </div>
           <div class="card-content showcase-content">
             <p class="card-category">${escapeHtml(p.category_name || "")}</p>
-            <h3>${escapeHtml(p.name)}</h3>
+            <h3>${escapeHtml(tituloProduto(p.name))}</h3>
             <p class="card-price">${money(p.price)}</p>
             ${p.discount_percent ? `<p class="discount-copy">${escapeHtml(p.discount_percent)}% de desconto</p>` : ""}
             <button class="btn-primary card-btn flip-trigger" type="button">Ver detalhes</button>
@@ -139,7 +140,7 @@ function cardHtml(p) {
         <div class="showcase-face showcase-back">
           <button class="showcase-close flip-trigger" type="button" aria-label="Voltar">×</button>
           <p class="card-category">${escapeHtml(p.category_name || "Oferta especial")}</p>
-          <h3>${escapeHtml(p.name)}</h3>
+          <h3>${escapeHtml(tituloProduto(p.name))}</h3>
           <p class="showcase-description">${description}</p>
           <p class="card-price">${money(p.price)}</p>
           ${p.discount_percent ? `<p class="discount-copy">${escapeHtml(p.discount_percent)}% de desconto</p>` : ""}
@@ -165,6 +166,10 @@ function renderProducts(fall = false) {
   } else if (couponNotice) couponNotice.hidden = true;
   grid.querySelectorAll(".product-card").forEach((card) => {
     const product = allProducts.find((p) => p.id === card.dataset.id);
+    card.addEventListener("click", (event) => {
+      if (event.target.closest("button, a")) return;
+      card.classList.toggle("is-flipped");
+    });
     card.querySelectorAll(".flip-trigger").forEach((button) => button.addEventListener("click", (event) => {
       event.stopPropagation();
       card.classList.toggle("is-flipped");
@@ -203,7 +208,7 @@ function renderPromoCarousel() {
     <div class="carousel-card liquid-glass clay-border" data-id="${p.id}">
       <div class="card-image" style="background-image:url('${escapeHtml(mainImageOf(p))}')"></div>
       <div class="card-info">
-        <h3>${escapeHtml(p.name)}</h3>
+        <h3>${escapeHtml(tituloProduto(p.name))}</h3>
         <p>${escapeHtml(p.category_name || "")}</p>
         <strong>${money(p.price)}</strong>
       </div>
@@ -290,9 +295,9 @@ function closeModal() {
   document.body.style.overflow = "";
 }
 function setupAnimations() {
-  document.querySelectorAll(".gsap-reveal, .products-grid, .footer").forEach((el) => el.classList.add("scroll-reveal"));
-  const observer = new IntersectionObserver((entries) => entries.forEach((entry) => entry.target.classList.toggle("is-visible", entry.isIntersecting)), { threshold: 0.12 });
-  document.querySelectorAll(".scroll-reveal").forEach((el) => observer.observe(el));
+  document.querySelectorAll(".gsap-reveal, .products-grid, .footer").forEach((el) => el.classList.add("scroll-reveal", "reveal-blur"));
+  const observer = new IntersectionObserver((entries) => entries.forEach((entry) => entry.target.classList.toggle("is-visible", entry.isIntersecting)), { threshold: 0.12, rootMargin: "-10% 0px -10% 0px" });
+  document.querySelectorAll(".scroll-reveal, .reveal-blur").forEach((el) => observer.observe(el));
   if (!window.gsap) return;
   gsap.registerPlugin(window.ScrollTrigger);
   gsap.from(".nav", { y: -30, opacity: 0, duration: 0.8, ease: "power3.out" });
