@@ -252,7 +252,8 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
 .modal-heart[aria-pressed="true"], .modal-heart:hover { color: #ffae00; background: rgba(255,88,16,.35); transform: scale(1.06); }
 .modal-rating { color: #ffb000; letter-spacing: 2px; margin-top: 10px; font-weight: 700; }
 .modal-price { font-size: 1.6rem; font-weight: 800; margin: 10px 0; }
-.modal-desc { color: var(--light-gray); line-height: 1.6; margin-bottom: 22px; }
+.modal-desc { color: var(--light-gray); line-height: 1.6; margin-bottom: 22px; white-space: pre-line; }
+#modalBuy[aria-disabled="true"] { opacity: .55; pointer-events: none; cursor: not-allowed; }
 .login-view { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .login-card {
   background: rgba(239, 239, 239, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
