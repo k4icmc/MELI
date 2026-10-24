@@ -195,10 +195,12 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
 .showcase-card.is-flipped .showcase-card-inner { transform: rotateY(180deg); }
 .showcase-face { position: absolute; inset: 0; min-height: 390px; display: flex; flex-direction: column; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; border-radius: 24px; background: linear-gradient(145deg, #45454a, #28282d); border: 1px solid rgba(255,255,255,.1); box-shadow: 10px 12px 24px rgba(0,0,0,.48), inset 1px 1px 0 rgba(255,255,255,.09); }
 .showcase-front { transform: rotateY(0); }
-.showcase-back { transform: rotateY(180deg); padding: 26px 22px 22px; background: radial-gradient(circle at 80% 0%, rgba(255,108,20,.25), transparent 40%), linear-gradient(145deg, #35353b, #19191c); }
-.showcase-image-wrap { position: relative; overflow: hidden; background: linear-gradient(145deg, #ff641c, #a92d0b); border-radius: 23px 23px 0 0; }
-.showcase-product-image { position: relative; z-index: 0; mix-blend-mode: multiply; }
-.showcase-image-overlay { background: linear-gradient(180deg, transparent 48%, rgba(25,15,12,.68)); }
+.showcase-back { transform: rotateY(180deg); padding: 26px 22px 22px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(255,108,20,.8) transparent; background: radial-gradient(circle at 80% 0%, rgba(255,108,20,.25), transparent 40%), linear-gradient(145deg, #35353b, #19191c); }
+.showcase-back::-webkit-scrollbar { width: 6px; }
+.showcase-back::-webkit-scrollbar-thumb { background: rgba(255,108,20,.8); border-radius: 999px; }
+.showcase-image-wrap { position: relative; overflow: hidden; min-height: 230px; background: linear-gradient(145deg, #ff6a1a 0%, #f0440f 48%, #9f2608 100%); border-radius: 23px 23px 0 0; isolation: isolate; }
+.showcase-product-image { position: relative; z-index: 1; width: 100%; height: 230px; object-fit: contain !important; object-position: center; padding: 16px; display: block; mix-blend-mode: normal; filter: drop-shadow(0 18px 12px rgba(53,18,5,.45)); }
+.showcase-image-overlay { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(180deg, rgba(255,140,40,.06), transparent 52%, rgba(25,15,12,.68)); }
 .showcase-heart { position: absolute; top: 14px; right: 14px; z-index: 4; width: 38px; height: 38px; border: 1px solid rgba(255,255,255,.35); border-radius: 50%; background: rgba(20,12,10,.34); color: #fff; font-size: 1.45rem; line-height: 1; cursor: pointer; backdrop-filter: blur(8px); transition: transform .2s, color .2s, background .2s; }
 .showcase-heart:hover, .showcase-heart[aria-pressed="true"] { color: #ffb000; background: rgba(255,88,16,.55); transform: scale(1.08); }
 .showcase-content { min-height: 156px; }
