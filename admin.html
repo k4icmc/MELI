@@ -58,7 +58,7 @@
         <label>Nome <input id="pName" required /></label>
         <label>Descrição <textarea id="pDesc" rows="2"></textarea></label>
         <div class="form-row">
-          <label>Preço (R$) <input id="pPrice" type="number" step="0.01" min="0" required /></label>
+          <label>Preço (R$) <input id="pPrice" inputmode="decimal" placeholder="0,00" required /></label>
           <label>Status
             <select id="pStatus">
               <option value="ativo">Ativo</option>
@@ -68,12 +68,21 @@
           </label>
         </div>
         <label class="check"><input type="checkbox" id="pPromo" /> Em promoção (aparece no carrossel do topo)</label>
-        <label>Categoria <select id="pCategory"></select></label>
+        <label>Desconto da promoção (%) <input id="pDiscount" inputmode="decimal" placeholder="Ex.: 15" /></label>
+        <div class="coupon-row">
+          <label>Cupom <input id="pCoupon" placeholder="Ex.: OFERTA10" /></label>
+          <label>Desconto do cupom (%) <input id="pCouponDiscount" inputmode="decimal" placeholder="Ex.: 10" /></label>
+        </div>
+        <div class="category-create-row">
+          <label>Categoria <select id="pCategory"></select></label>
+          <button type="button" class="btn-outline" id="newCategoryInlineBtn">+ Nova categoria</button>
+        </div>
         <label>Link de compra <input id="pUrl" type="url" placeholder="https://…" /></label>
         <div class="images-block">
-          <p class="images-title">Imagens do produto</p>
+          <p class="images-title">Imagem do produto</p>
+          <label>Link da imagem <input id="pImageUrl" type="url" placeholder="https://…" /></label>
           <input type="file" id="pImages" multiple accept="image/png,image/jpeg,image/webp,image/gif,image/avif" />
-          <p class="images-hint">Envie quantas imagens quiser de uma vez. A marcada como “principal” aparece no card; as setas mudam a ordem da galeria.</p>
+          <p class="images-hint">Escolha um arquivo ou informe um link. A prévia aparece antes de salvar o produto.</p>
           <div class="images-grid" id="imagesGrid"></div>
         </div>
         <p class="form-error" id="formError" hidden></p>
@@ -133,4 +142,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
