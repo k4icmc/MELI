@@ -312,6 +312,26 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
 }
 @media (max-width: 768px) {
   .nav-links { display: none; }
+  body[data-page="admin"] { overflow-x: hidden; }
+  body[data-page="admin"] .admin-view { padding-left: 14px; padding-right: 14px; }
+  body[data-page="admin"] .admin-nav { position: relative; top: auto; }
+  body[data-page="admin"] .admin-tabs { width: 100%; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 3px; scrollbar-width: thin; }
+  body[data-page="admin"] .tab { flex: 0 0 auto; }
+  body[data-page="admin"] .list-row { align-items: flex-start; }
+  body[data-page="admin"] .row-info { min-width: calc(100% - 82px); }
+  body[data-page="admin"] .row-badges,
+  body[data-page="admin"] .row-actions { width: 100%; margin-left: 80px; }
+  .drawer { overflow: hidden; overscroll-behavior: contain; }
+  .drawer-card {
+    width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh;
+    min-height: 0; overflow-y: auto; overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain;
+    touch-action: pan-y; padding: 22px 16px calc(28px + env(safe-area-inset-bottom));
+  }
+  .drawer-card .form-actions { padding-bottom: env(safe-area-inset-bottom); }
+  .modal { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .modal-card { max-height: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; }
+
   .hero-bg-text { font-size: 24vw; }
   .products-grid { grid-template-columns: 1fr; gap: 18px; padding: 0 4px; }
   .product-card { width: 100%; }
