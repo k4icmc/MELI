@@ -3,7 +3,18 @@
    dados.js (usuario embaralhado, senha como hash SHA-256; a senha real nunca
    aparece no código). Isso afasta curiosos, mas não é segurança real: um
    bloqueio feito no navegador pode ser burlado por quem entende de código. */
-const db = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+const db = (() => {
+  try {
+    if (!window.supabase?.createClient || !window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+      console.warn("[v0] Supabase indisponível: usando dados.js como cópia local.");
+      return null;
+    }
+    return window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  } catch (error) {
+    console.error("[v0] Falha ao iniciar Supabase:", error);
+    return null;
+  }
+})();
 const $ = (sel) => document.querySelector(sel);
 const money = (v) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(v) || 0);
 const slugify = (v) => String(v || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -303,7 +314,7 @@ function openModal(product) {
   $("#modalCategory").textContent = product.category_name || "";
   $("#modalName").textContent = tituloProduto(product.name);
   const rating = Math.max(0, Math.min(5, Number(product.rating ?? product.stars ?? 5) || 0));
-  $("#modalRating").textContent = `${"★".repeat(Math.round(rating)}${"☆".repeat(5 - Math.round(rating))} ${rating.toFixed(1)}`;
+  $("#modalRating").textContent = `${"★".repeat(Math.round(rating))}${"☆".repeat(5 - Math.round(rating))} ${rating.toFixed(1)}`;
   $("#modalPrice").textContent = money(product.price);
   $("#modalDesc").textContent = product.description || "Descrição não informada.";
   const heart = $("#modalHeart");
