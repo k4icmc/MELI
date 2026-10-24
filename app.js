@@ -32,6 +32,8 @@ let productImages = [];
 let deletingCategory = null;
 let usandoCopia = false;
 let promoAutoTimer = null;
+let modalImageTimer = null;
+let modalGalleryState = [];
 
 /* Desembaralha o usuário guardado em dados.js */
 const desembrulhar = (codigos) => String.fromCharCode(...[...codigos].reverse());
@@ -271,26 +273,42 @@ function setupModal() {
 }
 function openModal(product) {
   if (!product) return;
-  const images = imageListOf(product);
-  const gallery = images.length ? images : [PLACEHOLDER];
+  clearInterval(modalImageTimer);
+  const gallery = imageListOf(product).length ? imageListOf(product) : [PLACEHOLDER];
+  modalGalleryState = gallery;
+  let imageIndex = 0;
+  const showImage = (index) => {
+    imageIndex = index;
+    const main = $("#modalMain");
+    main.classList.remove("image-transition");
+    void main.offsetWidth;
+    main.classList.add("image-transition");
+    main.src = gallery[index];
+    $("#modalThumbs").querySelectorAll("img").forEach((el) => el.classList.toggle("active", Number(el.dataset.thumb) === index));
+  };
   $("#modalMain").src = gallery[0];
-  $("#modalThumbs").innerHTML = gallery.length > 1 ? gallery.map((url, i) => `<img src="${escapeHtml(url)}" data-thumb="${i}" class="${i === 0 ? "active" : ""}" alt="" />`).join("") : "";
-  $("#modalThumbs").querySelectorAll("[data-thumb]").forEach((thumb) => thumb.addEventListener("click", () => {
-    $("#modalMain").src = gallery[Number(thumb.dataset.thumb)];
-    $("#modalThumbs").querySelectorAll("img").forEach((el) => el.classList.toggle("active", el === thumb));
-  }));
+  $("#modalThumbs").innerHTML = gallery.length > 1 ? gallery.map((url, i) => `<img src="${escapeHtml(url)}" data-thumb="${i}" class="${i === 0 ? "active" : ""}" alt="Imagem ${i + 1} de ${escapeHtml(tituloProduto(product.name))}" onerror="this.style.display='none'" />`).join("") : "";
+  $("#modalThumbs").querySelectorAll("[data-thumb]").forEach((thumb) => thumb.addEventListener("click", () => showImage(Number(thumb.dataset.thumb))));
+  if (gallery.length > 1) modalImageTimer = setInterval(() => showImage((imageIndex + 1) % gallery.length), 3800);
   $("#modalCategory").textContent = product.category_name || "";
-  $("#modalName").textContent = product.name;
+  $("#modalName").textContent = tituloProduto(product.name);
+  const rating = Math.max(0, Math.min(5, Number(product.rating ?? product.stars ?? 5) || 0));
+  $("#modalRating").textContent = `${"★".repeat(Math.round(rating)}${"☆".repeat(5 - Math.round(rating))} ${rating.toFixed(1)}`;
   $("#modalPrice").textContent = money(product.price);
-  $("#modalDesc").textContent = product.description || "";
+  $("#modalDesc").textContent = product.description || "Descrição não informada.";
+  const heart = $("#modalHeart");
+  heart.textContent = "♡";
+  heart.setAttribute("aria-pressed", "false");
+  heart.onclick = () => { const active = heart.getAttribute("aria-pressed") === "true"; heart.setAttribute("aria-pressed", String(!active)); heart.textContent = active ? "♡" : "♥"; };
   const buy = $("#modalBuy");
-  if (product.purchase_url) { buy.href = product.purchase_url; buy.hidden = false; }
-  else buy.hidden = true;
+  if (product.purchase_url) { buy.href = product.purchase_url; buy.hidden = false; } else buy.hidden = true;
   $("#productModal").hidden = false;
   document.body.style.overflow = "hidden";
   if (window.gsap) gsap.from(".modal-card", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" });
 }
 function closeModal() {
+  clearInterval(modalImageTimer);
+  modalImageTimer = null;
   $("#productModal").hidden = true;
   document.body.style.overflow = "";
 }
