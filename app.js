@@ -115,17 +115,23 @@ function filteredProducts() {
   return allProducts.filter((p) => (!cat || p.category_id === cat) && (!term || (p.name || "").toLowerCase().includes(term) || (p.description || "").toLowerCase().includes(term)));
 }
 function cardHtml(p) {
+  const image = escapeHtml(mainImageOf(p));
   return `
-    <article class="product-card chunky-clay" data-id="${p.id}">
+    <article class="product-card chunky-clay showcase-card" data-id="${escapeHtml(p.id)}">
       ${p.is_promo ? '<span class="badge-promo">Promoção</span>' : ""}
-      <img src="${escapeHtml(mainImageOf(p))}" alt="${escapeHtml(p.name)}" loading="lazy" />
-      <div class="card-content">
+      <div class="showcase-image-wrap">
+        <div class="showcase-image-overlay"></div>
+        <img class="showcase-product-image" src="${image}" alt="${escapeHtml(p.name)}" loading="lazy" onerror="this.onerror=null;this.src='${PLACEHOLDER}'" />
+        <span class="showcase-arrow" aria-hidden="true">↗</span>
+      </div>
+      <div class="card-content showcase-content">
         <p class="card-category">${escapeHtml(p.category_name || "")}</p>
         <h3>${escapeHtml(p.name)}</h3>
         <p class="card-price">${money(p.price)}</p>
         ${p.discount_percent ? `<p class="discount-copy">${escapeHtml(p.discount_percent)}% de desconto</p>` : ""}
         ${p.coupon_code && p.coupon_discount ? `<p class="coupon-copy">Use o cupom ${escapeHtml(p.coupon_code)} para ter ${escapeHtml(p.coupon_discount)}% de desconto</p>` : ""}
         <span class="btn-primary card-btn">Ver oferta</span>
+        <span class="showcase-glow" aria-hidden="true"></span>
       </div>
     </article>`;
 }
