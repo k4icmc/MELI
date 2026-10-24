@@ -30,6 +30,7 @@ let editingId = null;
 let productImages = [];
 let deletingCategory = null;
 let usandoCopia = false;
+let promoAutoTimer = null;
 
 /* Desembaralha o usuário guardado em dados.js */
 const desembrulhar = (codigos) => String.fromCharCode(...[...codigos].reverse());
@@ -153,6 +154,7 @@ function renderProducts(fall = false) {
 }
 function renderPromoCarousel() {
   const track = $("#promoCarousel");
+  if (promoAutoTimer) clearInterval(promoAutoTimer);
   const promos = allProducts.filter((p) => p.is_promo).slice(0, 5);
   if (!promos.length) {
     track.innerHTML = "";
@@ -172,13 +174,15 @@ function renderPromoCarousel() {
   const cards = track.querySelectorAll(".carousel-card");
   cards.forEach((card) => card.addEventListener("click", () => openModal(allProducts.find((p) => p.id === card.dataset.id))));
   const apply = (instant) => {
+    const mobile = window.matchMedia("(max-width: 768px)").matches;
     cards.forEach((card, index) => {
       const rel = (index - carouselIndex + promos.length) % promos.length;
       let x = 0, z = -420, scale = 0.82, opacity = 0, zIndex = 0;
       if (rel === 0) { x = 0; z = 0; scale = 1; opacity = 1; zIndex = 10; }
-      else if (rel === 1) { x = 250; z = -110; scale = 0.9; opacity = 0.72; zIndex = 5; }
-      else if (rel === promos.length - 1) { x = -250; z = -110; scale = 0.9; opacity = 0.72; zIndex = 5; }
-      else if (rel === 2) { x = 430; z = -260; scale = 0.8; opacity = 0.28; zIndex = 1; }
+      else if (rel === 1) { x = mobile ? -210 : -245; z = -120; scale = mobile ? 0.84 : 0.88; opacity = 0.72; zIndex = 5; }
+      else if (rel === promos.length - 1) { x = mobile ? 210 : -410; z = -250; scale = mobile ? 0.76 : 0.78; opacity = 0.3; zIndex = 2; }
+      else if (rel === 2) { x = mobile ? 210 : 245; z = -120; scale = mobile ? 0.84 : 0.88; opacity = 0.72; zIndex = 5; }
+      else { x = mobile ? -210 : 410; z = -250; scale = mobile ? 0.76 : 0.78; opacity = 0.25; zIndex = 1; }
       gsap[instant ? "set" : "to"](card, { x, z, scale, opacity, zIndex, duration: 0.65, ease: "power3.out" });
     });
   };
@@ -208,6 +212,13 @@ function renderPromoCarousel() {
   });
   track.addEventListener("pointercancel", () => { dragStartX = null; track.classList.remove("is-dragging"); });
   track.addEventListener("click", (event) => { if (dragMoved) { event.preventDefault(); event.stopPropagation(); } }, true);
+  if (promos.length > 1) {
+    promoAutoTimer = setInterval(() => {
+      if (document.hidden || track.matches(":hover") || dragStartX !== null) return;
+      carouselIndex = (carouselIndex + 1) % promos.length;
+      apply(false);
+    }, 4200);
+  }
 }
 function setupFilters() {
   $("#searchInput").addEventListener("input", () => renderProducts());
