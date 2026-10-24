@@ -80,7 +80,7 @@
         <label>Link de compra <input id="pUrl" type="url" placeholder="https://…" /></label>
         <div class="images-block">
           <p class="images-title">Imagem do produto</p>
-          <label>Link da imagem <input id="pImageUrl" type="url" placeholder="https://…" /></label>
+          <div class="image-url-row"><label>Link da imagem <input id="pImageUrl" type="url" placeholder="https://…" /></label><button type="button" class="btn-outline" id="addImageUrlBtn">Adicionar link</button></div>
           <input type="file" id="pImages" multiple accept="image/png,image/jpeg,image/webp,image/gif,image/avif" />
           <p class="images-hint">Escolha um arquivo ou informe um link. A prévia aparece antes de salvar o produto.</p>
           <div class="images-grid" id="imagesGrid"></div>
@@ -105,7 +105,9 @@
     <div class="tab-panel" id="tab-store" hidden>
       <form class="store-form" id="storeForm">
         <label>Nome da loja <input id="sName" /></label>
-        <label>Logo (URL da imagem) <input id="sLogo" type="url" /></label>
+        <label>Logo por link <input id="sLogo" type="url" placeholder="https://…" /></label>
+        <label>Ou envie a logo <input id="sLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" /></label>
+        <div class="logo-preview-wrap"><span>Prévia da logo</span><img id="sLogoPreview" class="logo-preview" alt="Prévia da logo" hidden /></div>
         <label>Texto do rodapé <textarea id="sFooter" rows="2"></textarea></label>
         <button class="btn-primary" type="submit">Salvar loja</button>
       </form>
