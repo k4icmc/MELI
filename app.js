@@ -242,8 +242,16 @@ function renderPromoCarousel() {
   const cards = track.querySelectorAll(".carousel-card");
   cards.forEach((card) => {
     const product = promos[Number(card.dataset.promoIndex)] || allProducts.find((p) => String(p.id) === String(card.dataset.id));
-    const open = () => openModal(product);
-    card.addEventListener("click", (event) => { if (!event.target.closest("button")) open(); });
+    const open = () => {
+      if (!product) return;
+      openModal(product);
+    };
+    card.addEventListener("click", (event) => {
+      if (!event.target.closest("button")) {
+        event.stopPropagation();
+        open();
+      }
+    });
     card.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); } });
     card.querySelector(".promo-card-heart")?.addEventListener("click", (event) => {
       event.stopPropagation();
@@ -259,10 +267,10 @@ function renderPromoCarousel() {
       const rel = (index - carouselIndex + promos.length) % promos.length;
       let x = 0, z = -420, scale = 0.82, opacity = 0, zIndex = 0;
       if (rel === 0) { x = 0; z = 0; scale = 1; opacity = 1; zIndex = 10; }
-      else if (rel === 1) { x = mobile ? 210 : 245; z = -120; scale = mobile ? 0.84 : 0.88; opacity = 0.72; zIndex = 5; }
-      else if (rel === promos.length - 1) { x = mobile ? -210 : -245; z = -120; scale = mobile ? 0.84 : 0.88; opacity = 0.72; zIndex = 5; }
-      else if (rel === 2) { x = mobile ? 390 : 410; z = -250; scale = mobile ? 0.76 : 0.78; opacity = 0.3; zIndex = 2; }
-      else { x = mobile ? -390 : -410; z = -250; scale = mobile ? 0.76 : 0.78; opacity = 0.25; zIndex = 1; }
+      else if (rel === 1) { x = mobile ? -210 : -245; z = -120; scale = mobile ? 0.84 : 0.88; opacity = 0.72; zIndex = 5; }
+      else if (rel === promos.length - 1) { x = mobile ? 210 : 245; z = -120; scale = mobile ? 0.84 : 0.88; opacity = 0.72; zIndex = 5; }
+      else if (rel === 2) { x = mobile ? -390 : -410; z = -250; scale = mobile ? 0.76 : 0.78; opacity = 0.3; zIndex = 2; }
+      else { x = mobile ? 390 : 410; z = -250; scale = mobile ? 0.76 : 0.78; opacity = 0.25; zIndex = 1; }
       gsap[instant ? "set" : "to"](card, { x, z, scale, opacity, zIndex, duration: 0.65, ease: "power3.out" });
     });
   };
@@ -291,7 +299,17 @@ function renderPromoCarousel() {
     track.classList.remove("is-dragging");
   });
   track.addEventListener("pointercancel", () => { dragStartX = null; track.classList.remove("is-dragging"); });
-  track.addEventListener("click", (event) => { if (dragMoved) { event.preventDefault(); event.stopPropagation(); } }, true);
+  track.addEventListener("click", (event) => {
+    if (dragMoved) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    const card = event.target.closest(".promo-card");
+    if (!card || event.target.closest("button")) return;
+    const product = promos[Number(card.dataset.promoIndex)];
+    if (product) openModal(product);
+  });
   if (promos.length > 1) {
     promoAutoTimer = setInterval(() => {
       if (document.hidden || track.matches(":hover") || dragStartX !== null) return;
