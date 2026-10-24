@@ -116,22 +116,36 @@ function filteredProducts() {
 }
 function cardHtml(p) {
   const image = escapeHtml(mainImageOf(p));
+  const description = escapeHtml(p.description || "Confira os detalhes desta oferta especial.");
   return `
     <article class="product-card chunky-clay showcase-card" data-id="${escapeHtml(p.id)}">
-      ${p.is_promo ? '<span class="badge-promo">Promoção</span>' : ""}
-      <div class="showcase-image-wrap">
-        <div class="showcase-image-overlay"></div>
-        <img class="showcase-product-image" src="${image}" alt="${escapeHtml(p.name)}" loading="lazy" onerror="this.onerror=null;this.src='${PLACEHOLDER}'" />
-        <span class="showcase-arrow" aria-hidden="true">↗</span>
-      </div>
-      <div class="card-content showcase-content">
-        <p class="card-category">${escapeHtml(p.category_name || "")}</p>
-        <h3>${escapeHtml(p.name)}</h3>
-        <p class="card-price">${money(p.price)}</p>
-        ${p.discount_percent ? `<p class="discount-copy">${escapeHtml(p.discount_percent)}% de desconto</p>` : ""}
-        ${p.coupon_code && p.coupon_discount ? `<p class="coupon-copy">Use o cupom ${escapeHtml(p.coupon_code)} para ter ${escapeHtml(p.coupon_discount)}% de desconto</p>` : ""}
-        <span class="btn-primary card-btn">Ver oferta</span>
-        <span class="showcase-glow" aria-hidden="true"></span>
+      <div class="showcase-card-inner">
+        <div class="showcase-face showcase-front">
+          ${p.is_promo ? '<span class="badge-promo">Promoção</span>' : ""}
+          <div class="showcase-image-wrap">
+            <div class="showcase-image-overlay"></div>
+            <img class="showcase-product-image" src="${image}" alt="${escapeHtml(p.name)}" loading="lazy" onerror="this.onerror=null;this.src='${PLACEHOLDER}'" />
+            <button class="showcase-heart" type="button" aria-label="Favoritar ${escapeHtml(p.name)}" aria-pressed="false">♡</button>
+          </div>
+          <div class="card-content showcase-content">
+            <p class="card-category">${escapeHtml(p.category_name || "")}</p>
+            <h3>${escapeHtml(p.name)}</h3>
+            <p class="card-price">${money(p.price)}</p>
+            ${p.discount_percent ? `<p class="discount-copy">${escapeHtml(p.discount_percent)}% de desconto</p>` : ""}
+            <button class="btn-primary card-btn flip-trigger" type="button">Ver detalhes</button>
+            <span class="showcase-glow" aria-hidden="true"></span>
+          </div>
+        </div>
+        <div class="showcase-face showcase-back">
+          <button class="showcase-close flip-trigger" type="button" aria-label="Voltar">×</button>
+          <p class="card-category">${escapeHtml(p.category_name || "Oferta especial")}</p>
+          <h3>${escapeHtml(p.name)}</h3>
+          <p class="showcase-description">${description}</p>
+          <p class="card-price">${money(p.price)}</p>
+          ${p.discount_percent ? `<p class="discount-copy">${escapeHtml(p.discount_percent)}% de desconto</p>` : ""}
+          ${p.coupon_code && p.coupon_discount ? `<p class="coupon-copy">Use o cupom ${escapeHtml(p.coupon_code)} para ${escapeHtml(p.coupon_discount)}% de desconto</p>` : ""}
+          <button class="btn-primary card-btn open-product" type="button">Abrir produto</button>
+        </div>
       </div>
     </article>`;
 }
@@ -149,7 +163,24 @@ function renderProducts(fall = false) {
     couponNotice.textContent = `Use o cupom ${coupon.coupon_code} para ter ${Number(coupon.coupon_discount)}% de desconto`;
     couponNotice.hidden = false;
   } else if (couponNotice) couponNotice.hidden = true;
-  grid.querySelectorAll(".product-card").forEach((card) => card.addEventListener("click", () => openModal(allProducts.find((p) => p.id === card.dataset.id))));
+  grid.querySelectorAll(".product-card").forEach((card) => {
+    const product = allProducts.find((p) => p.id === card.dataset.id);
+    card.querySelectorAll(".flip-trigger").forEach((button) => button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      card.classList.toggle("is-flipped");
+    }));
+    card.querySelector(".showcase-heart")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const button = event.currentTarget;
+      const active = button.getAttribute("aria-pressed") === "true";
+      button.setAttribute("aria-pressed", String(!active));
+      button.textContent = active ? "♡" : "♥";
+    });
+    card.querySelector(".open-product")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      openModal(product);
+    });
+  });
   if (window.gsap && list.length) {
     if (fall) {
       gsap.from(".product-card", { y: 36, opacity: 0, scale: 0.96, duration: 0.7, stagger: 0.09, ease: "power3.out" });
