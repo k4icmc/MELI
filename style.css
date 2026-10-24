@@ -187,6 +187,29 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
   gap: 20px; flex-wrap: wrap; color: var(--light-gray); opacity: 0.85; font-size: 0.9rem;
 }
 .footer a { color: var(--bronze); }
+
+/* Cards de catálogo: visual editorial com frente, verso e giro suave */
+.showcase-card { min-height: 390px; perspective: 1100px; overflow: visible; background: transparent; box-shadow: none; border: 0; }
+.showcase-card::after { display: none; }
+.showcase-card-inner { position: relative; width: 100%; height: 100%; min-height: 390px; transform-style: preserve-3d; transition: transform .72s cubic-bezier(.2,.75,.25,1); }
+.showcase-card.is-flipped .showcase-card-inner { transform: rotateY(180deg); }
+.showcase-face { position: absolute; inset: 0; min-height: 390px; display: flex; flex-direction: column; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; border-radius: 24px; background: linear-gradient(145deg, #45454a, #28282d); border: 1px solid rgba(255,255,255,.1); box-shadow: 10px 12px 24px rgba(0,0,0,.48), inset 1px 1px 0 rgba(255,255,255,.09); }
+.showcase-front { transform: rotateY(0); }
+.showcase-back { transform: rotateY(180deg); padding: 26px 22px 22px; background: radial-gradient(circle at 80% 0%, rgba(255,108,20,.25), transparent 40%), linear-gradient(145deg, #35353b, #19191c); }
+.showcase-image-wrap { position: relative; overflow: hidden; background: linear-gradient(145deg, #ff641c, #a92d0b); border-radius: 23px 23px 0 0; }
+.showcase-product-image { position: relative; z-index: 0; mix-blend-mode: multiply; }
+.showcase-image-overlay { background: linear-gradient(180deg, transparent 48%, rgba(25,15,12,.68)); }
+.showcase-heart { position: absolute; top: 14px; right: 14px; z-index: 4; width: 38px; height: 38px; border: 1px solid rgba(255,255,255,.35); border-radius: 50%; background: rgba(20,12,10,.34); color: #fff; font-size: 1.45rem; line-height: 1; cursor: pointer; backdrop-filter: blur(8px); transition: transform .2s, color .2s, background .2s; }
+.showcase-heart:hover, .showcase-heart[aria-pressed="true"] { color: #ffb000; background: rgba(255,88,16,.55); transform: scale(1.08); }
+.showcase-content { min-height: 156px; }
+.showcase-content h3, .showcase-back h3 { font-size: 1.18rem; margin-bottom: 8px; }
+.showcase-back h3 { font-size: 1.5rem; padding-right: 28px; }
+.showcase-description { color: rgba(255,255,255,.75); line-height: 1.55; font-size: .9rem; margin: 8px 0 18px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.showcase-back .card-price { margin-top: auto; margin-bottom: 8px; }
+.showcase-close { position: absolute; top: 13px; right: 15px; width: 32px; height: 32px; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; background: rgba(255,255,255,.08); color: #fff; font-size: 1.4rem; cursor: pointer; }
+.showcase-back .card-btn { margin-top: 12px; }
+@media (prefers-reduced-motion: reduce) { .showcase-card-inner { transition: none; } }
+
 .modal { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .modal-backdrop { position: absolute; inset: 0; background: rgba(5, 5, 6, 0.75); backdrop-filter: blur(8px); }
 .modal-card {
