@@ -11,7 +11,7 @@ const escapeHtml = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&a
 const PLACEHOLDER = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="#2b2b30"/></svg>');
 const mainImageOf = (p) => {
   const imgs = p.images || [];
-  return (imgs.find((i) => i.is_main) || imgs[0] || {}).url || PLACEHOLDER;
+  return (imgs.find((i) => i.is_main) || imgs[0] || {}).url || p.image_url || PLACEHOLDER;
 };
 
 let allProducts = [];
@@ -338,13 +338,16 @@ function setupProductForm() {
   });
   document.querySelectorAll("[data-close-drawer]").forEach((el) => el.addEventListener("click", closeDrawer));
   $("#pImages").addEventListener("change", onImagesSelected);
-  $("#pImageUrl").addEventListener("change", () => {
-    const url = $("#pImageUrl").value.trim();
-    if (!url) return;
-    productImages = [{ url, is_main: true }];
-    renderImages();
+  $("#addImageUrlBtn").addEventListener("click", addImageUrl);
+  $("#pImageUrl").addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.nativeEvent?.isComposing && event.keyCode !== 229) {
+      event.preventDefault();
+      addImageUrl();
+    }
   });
   $("#productForm").addEventListener("submit", onSaveProduct);
+  $("#sLogo").addEventListener("input", previewStoreLogo);
+  $("#sLogoFile").addEventListener("change", previewStoreLogoFile);
 }
 function openDrawer(product) {
   editingId = product?.id || null;
@@ -358,7 +361,7 @@ function openDrawer(product) {
   $("#pCoupon").value = product?.coupon_code || "";
   $("#pCouponDiscount").value = product?.coupon_discount ?? "";
   $("#pUrl").value = product?.purchase_url || "";
-  $("#pCategory").innerHTML = '<option value="">Sem categoria</option>' + adminCategories.filter((c) => c.status !== "inativa").map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
+  atualizarSelectCategorias();
   $("#pCategory").value = product?.category_id || "";
   productImages = [...(product?.images || [])];
   $("#pImageUrl").value = productImages[0]?.url && !productImages[0]?.path ? productImages[0].url : "";
@@ -394,6 +397,14 @@ async function onImagesSelected(event) {
   } catch (err) {
     showFormError("Não foi possível pré-visualizar a imagem: " + err.message);
   }
+}
+function addImageUrl() {
+  const input = $("#pImageUrl");
+  const url = input.value.trim();
+  if (!url) return;
+  if (!productImages.some((img) => img.url === url)) productImages.push({ url, is_main: productImages.length === 0 });
+  input.value = "";
+  renderImages();
 }
 function renderImages() {
   const grid = $("#imagesGrid");
@@ -449,8 +460,8 @@ async function onSaveProduct(event) {
   };
   if (!payload.name || !(payload.price > 0)) { showFormError("Informe o nome e um preço maior que zero."); return; }
   try {
-    if (editingId) await db.from("products").update(payload).eq("id", editingId);
-    else await db.from("products").insert(payload);
+    const result = editingId ? await db.from("products").update(payload).eq("id", editingId) : await db.from("products").insert(payload);
+    if (result.error) throw result.error;
     closeDrawer();
     await loadAdminProducts();
   } catch (err) {
@@ -495,10 +506,23 @@ function prepararAdminCategorias(lista) {
   document.querySelectorAll("[data-cat-delete]").forEach((btn) => btn.addEventListener("click", () => openCategoryModal(adminCategories.find((c) => c.id === btn.dataset.catDelete))));
 }
 async function criarCategoria(name, selecionar = false) {
-  const result = await db.from("categories").insert({ name, slug: slugify(name), status: "ativa" }).select().single();
-  if (result.error) { showFormError("Não foi possível criar a categoria: " + result.error.message); return; }
-  await loadAdminCategories();
-  if (selecionar) $("#pCategory").value = result.data.id;
+  const categoriaLocal = { id: `local-${slugify(name)}-${Date.now()}`, name, slug: slugify(name), status: "ativa" };
+  try {
+    const result = await db.from("categories").insert({ name, slug: slugify(name), status: "ativa" }).select().single();
+    if (result.error) throw result.error;
+    await loadAdminCategories();
+    if (selecionar) $("#pCategory").value = result.data.id;
+  } catch (err) {
+    usandoCopia = true;
+    adminCategories = [...adminCategories.filter((c) => c.name.toLowerCase() !== name.toLowerCase()), categoriaLocal];
+    prepararAdminCategorias(adminCategories);
+    atualizarSelectCategorias(categoriaLocal.id);
+    if (selecionar) $("#pCategory").value = categoriaLocal.id;
+  }
+}
+function atualizarSelectCategorias(selectedId = "") {
+  $("#pCategory").innerHTML = '<option value="">Sem categoria</option>' + adminCategories.filter((c) => c.status !== "inativa").map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join("");
+  if (selectedId) $("#pCategory").value = selectedId;
 }
 async function addCategory(event) {
   event.preventDefault();
@@ -550,8 +574,23 @@ async function loadStore() {
 }
 function preencherLoja(cfg) {
   $("#sName").value = cfg.site_name || "";
-  $("#sLogo").value = cfg.logo_url || "";
+  $("#sLogo").value = cfg.logo_url?.startsWith("data:") ? "" : (cfg.logo_url || "");
+  $("#sLogo").dataset.currentLogo = cfg.logo_url || "";
   $("#sFooter").value = cfg.footer_text || "";
+  previewStoreLogo();
+}
+function previewStoreLogo() {
+  const url = $("#sLogo").value.trim() || $("#sLogo").dataset.currentLogo || "";
+  const preview = $("#sLogoPreview");
+  preview.src = url;
+  preview.hidden = !url;
+}
+function previewStoreLogoFile(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { $("#sLogo").dataset.currentLogo = reader.result; previewStoreLogo(); };
+  reader.readAsDataURL(file);
 }
 function setupStoreForm() {
   $("#storeForm").addEventListener("submit", async (event) => {
@@ -559,7 +598,7 @@ function setupStoreForm() {
     try {
       await db.from("site_settings").update({
         site_name: $("#sName").value.trim(),
-        logo_url: $("#sLogo").value.trim(),
+        logo_url: $("#sLogo").value.trim() || $("#sLogo").dataset.currentLogo || null,
         footer_text: $("#sFooter").value.trim(),
       }).eq("id", 1);
       alert("Loja atualizada!");
