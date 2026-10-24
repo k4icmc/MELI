@@ -80,7 +80,11 @@ em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color
   text-transform: uppercase; letter-spacing: 1px;
 }
 .logo-dot { width: 20px; height: 20px; background: var(--bronze); border-radius: 4px; display: inline-block; }
-.logo-img { height: 34px; width: auto; display: block; }
+.logo-img { height: 34px; width: 34px; object-fit: contain; display: block; }
+.password-field { position: relative; display: flex; align-items: center; }
+.password-field input { padding-right: 82px !important; }
+.password-toggle { position: absolute; right: 8px; border: 0; background: transparent; color: var(--bronze); font: inherit; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+.admin-brand { display: inline-flex; align-items: center; gap: 8px; }
 .nav-links { list-style: none; display: flex; }
 .nav-links a {
   color: var(--light-gray); text-decoration: none; margin: 0 14px;
