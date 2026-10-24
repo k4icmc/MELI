@@ -16,7 +16,11 @@ html { scroll-behavior: smooth; }
 body { scroll-behavior: smooth; }
 .scroll-reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.75,.25,1); }
 .scroll-reveal.is-visible { opacity: 1; transform: translateY(0); }
-@media (prefers-reduced-motion: reduce) { html, body { scroll-behavior: auto; } .scroll-reveal { opacity: 1; transform: none; transition: none; } }
+.reveal-blur { filter: blur(10px); transition: filter .7s ease, opacity .7s ease, transform .7s cubic-bezier(.2,.75,.25,1); }
+.reveal-blur.is-visible { filter: blur(0); }
+.products-grid.reveal-blur { filter: blur(10px); }
+.products-grid.reveal-blur.is-visible { filter: blur(0); }
+@media (prefers-reduced-motion: reduce) { html, body { scroll-behavior: auto; } .scroll-reveal, .reveal-blur, .products-grid.reveal-blur { opacity: 1; filter: none; transform: none; transition: none; } }
 body {
   background: linear-gradient(to bottom, #1a1a1c 0%, var(--black) 60%);
   color: var(--white);
