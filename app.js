@@ -48,13 +48,14 @@ async function initHome() {
   setupAnimations();
 }
 async function loadSettings() {
+  const copia = window.dados?.configuracoes || {};
   try {
     const { data, error } = await db.from("site_settings").select("*").eq("id", 1).maybeSingle();
     if (error) throw error;
-    aplicarIdentidade(data || {});
+    aplicarIdentidade({ ...copia, ...(data || {}) });
   } catch (err) {
     usarCopia();
-    aplicarIdentidade(window.dados?.configuracoes || {});
+    aplicarIdentidade(copia);
   }
 }
 function aplicarIdentidade(cfg) {
@@ -71,22 +72,30 @@ function aplicarIdentidade(cfg) {
   if (cfg.footer_text) $("#footerText").textContent = cfg.footer_text;
 }
 async function loadCategories() {
+  const copia = (window.dados?.categorias || []).filter((c) => c.status === "ativa" || !c.status);
   try {
-    const { data, error } = await db.from("categories").select("id,name").eq("status", "ativa").order("name");
+    const { data, error } = await db.from("categories").select("id,name,status").eq("status", "ativa").order("name");
     if (error) throw error;
-    prepararCategorias(data || []);
+    prepararCategorias(semDuplicados(copia, data || []).map((c) => ({ ...c, status: "ativa" })));
   } catch (err) {
     usarCopia();
-    prepararCategorias((window.dados?.categorias || []).filter((c) => c.status === "ativa"));
+    prepararCategorias(copia);
   }
 }
 function prepararCategorias(lista) {
   allCategories = lista;
+  const select = $("#categorySelect");
+  if (!select) return;
+  select.querySelectorAll("option:not(:first-child)").forEach((option) => option.remove());
+  const seen = new Set();
   lista.forEach((c) => {
+    const key = String(c.id ?? c.name).toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
     const option = document.createElement("option");
     option.value = c.id;
     option.textContent = c.name;
-    $("#categorySelect").appendChild(option);
+    select.appendChild(option);
   });
 }
 async function loadProducts() {
@@ -98,6 +107,7 @@ async function loadProducts() {
     prepararProdutos(semDuplicados(produtosLocais, data || []));
   } catch (err) {
     usarCopia();
+    prepararProdutos(produtosLocais);
   }
 }
 function chaveProduto(p) {
